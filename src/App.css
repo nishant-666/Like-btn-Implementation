@@ -11,3 +11,16 @@
   flex-direction: column;
   gap: 20px;
 }
+
+.add-posts{
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.logout{
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
