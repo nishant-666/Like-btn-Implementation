@@ -7,10 +7,22 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
+
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import "./App.css";
+import Posts from "./Posts";
 
 function App() {
   let [authState, setAuthState] = useState(false);
+  const [post, setPost] = useState("");
+  const [posts, setPosts] = useState([]);
+  let databaseInstance = collection(database, "posts");
   let auth = getAuth();
   let googleAuth = new GoogleAuthProvider();
   const signIn = () => {
@@ -23,6 +35,29 @@ function App() {
     signOut(auth);
   };
 
+  const addPost = () => {
+    addDoc(databaseInstance, {
+      post: post,
+      isLiked: false,
+    }).then(() => {
+      setPost("");
+    });
+  };
+
+  const doLike = (id, isLiked) => {
+    let docToUpdate = doc(databaseInstance, id);
+
+    if (isLiked) {
+      updateDoc(docToUpdate, {
+        isLiked: false,
+      });
+    } else {
+      updateDoc(docToUpdate, {
+        isLiked: true,
+      });
+    }
+  };
+
   useEffect(() => {
     onAuthStateChanged(auth, (res) => {
       if (res) {
@@ -30,6 +65,14 @@ function App() {
       } else {
         setAuthState(false);
       }
+    });
+
+    onSnapshot(databaseInstance, (res) => {
+      setPosts(
+        res.docs.map((post) => {
+          return { ...post.data(), id: post.id };
+        })
+      );
     });
   }, []);
   return (
@@ -41,9 +84,22 @@ function App() {
           </button>
 
           <div className="add-posts">
-            <textarea id="post" name="post" rows="4" cols="50"></textarea>
+            <textarea
+              onChange={(event) => setPost(event.target.value)}
+              id="post"
+              name="post"
+              value={post}
+              rows="4"
+              cols="50"
+            ></textarea>
             <br />
-            <button>Post</button>
+            <button onClick={addPost}>Post</button>
+          </div>
+
+          <div className="posts-main">
+            {posts.map((post) => {
+              return <Posts post={post} doLike={doLike} />;
+            })}
           </div>
         </>
       ) : (

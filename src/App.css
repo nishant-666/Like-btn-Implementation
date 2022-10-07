@@ -24,3 +24,14 @@
   right: 10px;
   top: 10px;
 }
+
+.posts-main{
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+}
+
+.posts-body{
+  border: 1px solid white;
+  padding: 10px 20px;
+}
